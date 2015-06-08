@@ -49,6 +49,7 @@ def check_band(df1):
     print "PCS band = %2.f percent"%((100)*PCS/len(df1))
     print "Unknown band = %2.f percent"%((100)*Unknown/len(df1))
     print "Total data set size =", len(df1)
+    return CDMA, PCS, Unknown, len(df1)
 
 
 
@@ -66,47 +67,56 @@ def check_drop(df3):
     print "Weak Active Set = %2.1f perecent"%((100)* weak_active/datasize), "\nTwo Way = %2.1f percent "%((100)*two_way/datasize)
     print "Missing PN = %2.1f perecent"%((100)* missing/datasize)
     print "Data set size = ", datasize
-
+    return two_way, weak_active, missing, datasize
 
 
 def make_mean_carrier(dm):
     #Create the statistics on a data set sorted also by sector.
-    mean_count = dm['Carrier'].mean()
-    std_count = dm['Carrier'].std()
-    max_count = dm['Carrier'].max()
-    min_count = dm['Carrier'].min()
-    top_count_sector = mean_count + std_count
-    sector_count = float(len(dm))
-    bad_sectors = float(len(dm.loc[dm['Carrier']>top_count_sector]))
-    #Dropped Call Failure reason
-    #Call Final Class qualifier
- 
+	mean_count = dm['Carrier'].mean()
+	if mean_count.dtype == float and np.isnan(mean_count):
+	    mean_count = 0
+	std_count = dm['Carrier'].std()
+	if std_count.dtype == float and np.isnan(std_count):
+	    std_count = 0
+	max_count = dm['Carrier'].max()
+	min_count = dm['Carrier'].min()
+	top_count_sector = mean_count + std_count
+
+	bad_sectors = dm.loc[dm['Carrier']>top_count_sector]
+
+	sector_count = float(len(dm))
+	try: 
+	    bad_sectors = float(bad_sectors)
+	except:
+	    bad_sectors =0
+	#Dropped Call Failure reason
+	#Call Final Class qualifier
      
-    print 'Total Sector Count = %4d'%(sector_count)
-    print '\nNumber of Top Offending Sectors = %4d '%bad_sectors
-    print '%4.2f percent'%((100)*(bad_sectors/sector_count))
-    # Find the cutoff statistics
-    print '\nMean =%4d'%(mean_count), 'Standard deviation ',std_count, 'Mean + 1 sigma = %4d'%(top_count_sector)
-    if False:
-        fig =plt.figure()
-        plt.clf()
-        bin_tick =np.arange(top_count_sector,max_count,50, dtype=int)
+        print '++++++++++++++++++++\n','Total Sector Count = %4d'%(sector_count)
+        print '\nNumber of Top Offending Sectors = %4d '%bad_sectors
+        print '%4.2f percent'%((100)*(bad_sectors/sector_count))
+        # Find the cutoff statistics
+        print '\nMean =%4d'%(mean_count), 'Standard deviation ',std_count, 'Mean + 1 sigma = %4d'%(top_count_sector)
+        if False:
+            fig =plt.figure()
+            plt.clf()
+            bin_tick =np.arange(top_count_sector,max_count,50, dtype=int)
 
-        #dm2.hist()
-        #dm2.plot(x=['ECP','Cell'], y ='Carrier',kind='line')
-        #dm.plot(x=['ECP','Cell'], y='Carrier' )
-        #plt.subplots(2,2)
-        ax1 = fig.add_subplot(2,2,1)
+            #dm2.hist()
+            #dm2.plot(x=['ECP','Cell'], y ='Carrier',kind='line')
+            #dm.plot(x=['ECP','Cell'], y='Carrier' )
+            #plt.subplots(2,2)
+            ax1 = fig.add_subplot(2,2,1)
 
-        _ = ax1.plot(dm['Carrier'].values, drawstyle='steps-post', label ='steps-post')
-        ax2 = fig.add_subplot(2,2,3)
+            _ = ax1.plot(dm['Carrier'].values, drawstyle='steps-post', label ='steps-post')
+            ax2 = fig.add_subplot(2,2,3)
 
-        bin_tick = np.arange(min_count,max_count,50, dtype=int)
+            bin_tick = np.arange(min_count,max_count,50, dtype=int)
 
-        _ = ax2.hist(dm['Carrier'],bins=bin_tick)
-        ax3 = fig.add_subplot(2,2,4)
-    	norm_cdf(68, std_count, min_count, max_count)
-    return top_count_sector
+            _ = ax2.hist(dm['Carrier'],bins=bin_tick)
+            ax3 = fig.add_subplot(2,2,4)
+ 	    norm_cdf(68, std_count, min_count, max_count)
+	return top_count_sector
 
 
 
@@ -152,7 +162,7 @@ def  agg_by(df3):
         print '\nNumber of items in dm_cell = ', len(dm_cell)
 
     else:
-        dm = df2[['ECP', 'Cell','Call Final Class qualifier']].groupby([df2['ECP'], df2['Cell'],                                    df2['Call Final Class qualifier']]).agg(len)
+        dm = df2[['ECP', 'Cell','Call Final Class qualifier']].groupby([df2['ECP'], df2['Cell'],df2['Call Final Class qualifier']]).agg(len)
         dm.sort(columns='Cell',ascending = False, inplace =True)
         print 'df2 info this is unfiltered ', df2.info()
         print '\n\nNow the grouped series dm ',dm.info()
