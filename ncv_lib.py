@@ -225,19 +225,17 @@ def agg_by_reason(dm2):
     dm3 = dm2[['ECP', 'Cell','Sector','Analysis Type']].groupby([dm2['ECP'], dm2['Cell'], dm2['Sector'],dm2['Analysis Type']]).agg(len)
     print type(dm3), '\nNumber Rows for the group by Sector ', len(dm3)
 
-    dm3.sort(columns='Cell',ascending = False)
+    dm3.sort(columns='Analysis Type',ascending = False)
 
     #Print results if Data is correct
     if True:
         dm3.to_csv('output/top_cdma_drop_reason.txt')
-
+    del dm3
 
 
 def agg_by_bandclass(df3):
     
     # Create a count to look for the cells with the most drops
-    #this is obvsioulsy broken.  Likely dm2 is not the right starting point to sort.
-    #Same as above I seem to be off by a column somewhere.
     dm3 = df3[['Cell','Sector','Ending Band Class']].groupby([df3['Cell'], df3['Sector'],df3['Ending Band Class']]).agg(len)
 
     print type(dm3), '\nEnding Band Class', len(dm3)
@@ -254,5 +252,17 @@ def agg_by_RSSI(df3):
     print type(dm3), '\nNumber of Sector', len(dm3)
     if True:
         dm3.to_csv('output/top_cdma_drop_RSSI.txt')
+    del dm3
+
+def agg_by_vendor(df3):
+    
+    # Create a count to look for the cells with the most drops
+    dm3 = df3[['Cell','Sector','Mobile Vendor']].groupby([df3['Cell'], df3['Sector'],df3['Mobile Vendor']]).agg(len)
+
+    print type(dm3), '\nMobile Vendor', len(dm3)
+
+    dm3.sort(columns='Mobile Vendor',ascending = False)
+    if True:
+        dm3.to_csv('output/top_cdma_drop_vendor.txt')
     del dm3
 
