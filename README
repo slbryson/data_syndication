@@ -1,0 +1,27 @@
+The code in this repo are primarily iPython notebooks for further filtering of CDMA PCMD
+files after being processed by the Network Coverage Visualization tool.  While ultimately
+direct filtering of RAW PCMD records is desired so that the analyst can examine different
+relationships with data this is a pre-emptive step re-using the field mapping 
+already performed by the NCV tool.
+However, the tool still delivers a significant size report in terms of metadata to be processed.
+Hence, the need for further manipulation to look for statistical outliers with respect
+to a report that describes approximately 132 concurrent data points per connection that was 
+ultimately classified as drop.  The goal is to extract the hidden relationships between the
+data points of each drop such that a pattern for correction in the most effective way can
+be perscribed.
+
+Author:  S. Bryson, Ph.D.
+
+There are several notebooks in the directory each with the same theme of taking tabular data 
+and sorting and formulating it such that it can be visualized or correlated among columns
+
+For CDMA the FullMarket notebook will process a complete market supplied data set from the
+NCV Call Drop study output.  These files usually contain anywhere from 800K to 4.5M records (calls) from
+a major metropolitan market.
+
+There are other notebooks included that will process ill formed performance metric data from LTE
+KPIs. These data sets are usually ill formed in terms of sorting by hour, day, cell and technology.  The
+python scripts re-factor the data to a format that is used to determine relationships and
+correlations.
+
+
